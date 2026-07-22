@@ -1,7 +1,7 @@
 const net = require('net');
 
-const PORT = 3000;
-const HOST = '127.0.0.1';
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 
 // ─── Predefined manual responses ────────────────────────────────────────────
 const responses = {
@@ -61,18 +61,46 @@ const server = net.createServer((socket) => {
   const clientAddr = `${socket.remoteAddress}:${socket.remotePort}`;
   console.log(`\n[+] New client connected: ${clientAddr}`);
 
-  socket.write(
-    '\n╔══════════════════════════════════════════╗\n' +
-    '║   Welcome to the Host-Server! 🖥️          ║\n' +
-    '║   Type "help" to see available commands.  ║\n' +
-    '║   Type "bye" or "exit" to disconnect.     ║\n' +
-    '╚══════════════════════════════════════════╝\n\n' +
-    "SERVER: Hello! I'm ready to chat. What would you like to say? 😊\n"
-  );
+  let isHttpClient = false;
+
+  // Defer welcome message. If it's an HTTP client (like Render health check),
+  // they will send a request immediately, allowing us to cancel this welcome message.
+  const welcomeTimeout = setTimeout(() => {
+    if (!isHttpClient) {
+      socket.write(
+        '\n╔══════════════════════════════════════════╗\n' +
+        '║   Welcome to the Host-Server! 🖥️          ║\n' +
+        '║   Type "help" to see available commands.  ║\n' +
+        '║   Type "bye" or "exit" to disconnect.     ║\n' +
+        '╚══════════════════════════════════════════╝\n\n' +
+        "SERVER: Hello! I'm ready to chat. What would you like to say? 😊\n"
+      );
+    }
+  }, 50);
 
   socket.on('data', (data) => {
-    const message = data.toString().trim();
+    const rawMessage = data.toString();
+    const message = rawMessage.trim();
     if (!message) return;
+
+    // Check if client is sending an HTTP request (e.g. Render HTTP Health Check)
+    if (rawMessage.startsWith('GET /') || rawMessage.startsWith('HEAD /') || rawMessage.startsWith('OPTIONS /')) {
+      isHttpClient = true;
+      clearTimeout(welcomeTimeout);
+      console.log(`[${clientAddr}] HTTP Health Check received: ${message.split('\n')[0]}`);
+      
+      // Respond with a clean HTTP 200 OK response
+      socket.write(
+        'HTTP/1.1 200 OK\r\n' +
+        'Content-Type: text/plain\r\n' +
+        'Content-Length: 2\r\n' +
+        'Connection: close\r\n' +
+        '\r\n' +
+        'OK'
+      );
+      socket.end();
+      return;
+    }
 
     console.log(`[${clientAddr}] HOST says: ${message}`);
 

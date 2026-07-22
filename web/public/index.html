@@ -383,8 +383,10 @@
   // ── WebSocket ───────────────────────────────────────────────────────────────
   function connect() {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    // If opened via VS Code Live Server (e.g. port 5501) or file://, connect to the Node server on port 8070
-    const host = (location.port && location.port !== '8070') ? 'localhost:8070' : location.host;
+    // If opened via VS Code Live Server (e.g. port 5501) or file://, connect to the local Node server on port 8070.
+    // Otherwise, connect to the current domain/host directly.
+    const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    const host = (isLocal && location.port && location.port !== '8070') ? 'localhost:8070' : location.host;
     ws = new WebSocket(`${proto}://${host}`);
 
     ws.onopen = () => {
