@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const PORT = 8080;
+const PORT = 8070;
 
 // ─── Serve static files ───────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'public')));

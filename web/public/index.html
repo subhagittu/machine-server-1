@@ -383,7 +383,9 @@
   // ── WebSocket ───────────────────────────────────────────────────────────────
   function connect() {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    ws = new WebSocket(`${proto}://${location.host}`);
+    // If opened via VS Code Live Server (e.g. port 5501) or file://, connect to the Node server on port 8070
+    const host = (location.port && location.port !== '8070') ? 'localhost:8070' : location.host;
+    ws = new WebSocket(`${proto}://${host}`);
 
     ws.onopen = () => {
       setStatus(true);
