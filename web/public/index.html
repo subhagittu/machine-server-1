@@ -381,13 +381,15 @@
   let typingEl = null;
 
   // ── WebSocket ───────────────────────────────────────────────────────────────
+  // Render backend WebSocket URL — update this if your Render service URL changes
+  const RENDER_WS_URL = 'wss://machine-server-1.onrender.com';
+
   function connect() {
-    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    // If opened via VS Code Live Server (e.g. port 5501) or file://, connect to the local Node server on port 8070.
-    // Otherwise, connect to the current domain/host directly.
     const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-    const host = (isLocal && location.port && location.port !== '8070') ? 'localhost:8070' : location.host;
-    ws = new WebSocket(`${proto}://${host}`);
+    // Local dev: connect to the local web server on port 8070
+    // Production (Vercel): connect to the Render backend WebSocket server
+    const wsUrl = isLocal ? `ws://localhost:8070` : RENDER_WS_URL;
+    ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       setStatus(true);
