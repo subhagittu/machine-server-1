@@ -2,6 +2,6 @@ services:
   - type: web
     name: machine-server-1
     env: node
-    rootDir: render-web/backend
+    rootDir: web
     buildCommand: npm install
     startCommand: node server.js

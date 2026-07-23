@@ -1,121 +1,85 @@
 # 🖥️ Host-Server Interaction System
 
-A Node.js chat application with **three separate modes** — choose the one you want to run!
+Three clean modes — pick one and run it.
 
 ---
 
-## 📁 Repository Structure
+## 📁 Structure
 
 ```
 host-server-1/
+├── terminal/         ← Option 1: Terminal chat (no npm needed)
+│   ├── server.js
+│   └── client.js
 │
-├── terminal/               ← Option 1: Terminal-to-Terminal TCP chat
-│   ├── server.js           ← TCP server (run first)
-│   └── client.js           ← Terminal client (run second)
-│
-├── local-web/              ← Option 2: Browser UI on localhost:8070
-│   ├── server.js           ← Express + WebSocket server (self-contained)
+├── localhost/        ← Option 2: Browser UI on localhost:8070
+│   ├── server.js
 │   ├── package.json
 │   └── public/
-│       └── index.html      ← Green-themed chat UI
+│       └── index.html
 │
-├── render-web/             ← Option 3: Cloud deployment (Render + Vercel)
-│   ├── backend/            ← Deploy on Render
-│   │   ├── server.js       ← WebSocket server with CORS + HTTP health check
-│   │   └── package.json
-│   └── frontend/           ← Deploy on Vercel
-│       └── index.html      ← Purple-themed chat UI (connects to Render)
-│
-├── render.yaml             ← Render deployment config (rootDir: render-web/backend)
-├── vercel.json             ← Vercel deployment config (serves render-web/frontend)
-└── README.md
+└── web/              ← Option 3: Cloud (Render backend + Vercel frontend)
+    ├── server.js     ← WebSocket server → deploy on Render
+    ├── package.json
+    └── index.html    ← Static frontend → deploy on Vercel
 ```
 
 ---
 
-## 🖥️ Option 1 — Terminal Chat (No npm needed!)
+## Option 1 — Terminal Chat
 
-Pure Node.js, no dependencies. Two terminal windows required.
+No install needed. Open **two terminals**:
 
-### Terminal 1 — Start the server:
 ```bash
+# Terminal 1 — start server
 cd terminal
 node server.js
-```
 
-### Terminal 2 — Start the client:
-```bash
+# Terminal 2 — start client
 cd terminal
 node client.js
 ```
 
-Start typing in Terminal 2 and chat with the server!
-
 ---
 
-## 🌐 Option 2 — Local Web UI (localhost:8070)
-
-A beautiful browser chat UI running entirely on your machine.
+## Option 2 — Local Browser UI
 
 ```bash
-cd local-web
+cd localhost
 npm install
 node server.js
 ```
-
-Open your browser → **http://localhost:8070**
-
-- Green accent theme 🟢
-- WebSocket connects to `ws://localhost:8070`
-- Fully self-contained — no internet needed
+Open → **http://localhost:8070**
 
 ---
 
-## ☁️ Option 3 — Cloud Deployment (Render + Vercel)
+## Option 3 — Cloud (Render + Vercel)
 
-Your chat app deployed on the internet!
+**Render settings** (Dashboard → Service → Settings):
 
-| Part | Platform | Folder |
-|------|----------|--------|
-| Backend (WebSocket server) | **Render** | `render-web/backend/` |
-| Frontend (Static HTML) | **Vercel** | `render-web/frontend/` |
-
-### Render settings (Dashboard → Your Service → Settings):
 | Setting | Value |
 |---------|-------|
-| Root Directory | `render-web/backend` |
+| Root Directory | `web` |
 | Build Command | `npm install` |
 | Start Command | `node server.js` |
 
-### Vercel:
-Auto-deploys from the repo. The `vercel.json` tells Vercel to serve `render-web/frontend/`.
+Vercel auto-deploys `web/index.html` as the frontend.
 
-> ⚠️ **If your Render URL is different**, update line in `render-web/frontend/index.html`:
+> ⚠️ If your Render URL differs, update this line in `web/index.html`:
 > ```js
-> const RENDER_WS_URL = 'wss://YOUR-SERVICE-NAME.onrender.com';
+> const RENDER_WS_URL = 'wss://YOUR-SERVICE.onrender.com';
 > ```
 
 ---
 
-## 💬 Available Commands (all modes)
+## Commands (all modes)
 
 | Command | Response |
 |---------|----------|
 | `hello` / `hi` / `hey` | Greeting |
 | `how are you` | Server status |
-| `what is your name` | Server identity |
 | `time` | Current IST time |
 | `date` | Today's date |
-| `joke` | A programmer joke |
-| `thanks` / `thank you` | Politeness |
-| `bye` / `exit` | End conversation |
-| `help` | Full command list |
-
----
-
-## ⚙️ Technical Notes
-
-- **Option 1** uses Node's built-in `net` module — no npm install needed
-- **Option 2** uses `express` + `ws` — WebSocket and HTTP served together
-- **Option 3** backend uses `ws` only — pure WebSocket + HTTP health check for Render
-- All modes simulate a typing delay (600–1000ms) before replying
+| `joke` | Programmer joke |
+| `bye` / `exit` | End chat |
+| `help` | Full list |

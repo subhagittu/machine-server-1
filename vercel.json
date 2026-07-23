@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "render-web/frontend/**",
+      "src": "web/index.html",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/render-web/frontend/$1"
+      "dest": "/web/index.html"
     }
   ]
 }
