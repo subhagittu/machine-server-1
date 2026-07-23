@@ -2,9 +2,6 @@ services:
   - type: web
     name: machine-server-1
     env: node
-    rootDir: server
+    rootDir: render-web/backend
     buildCommand: npm install
     startCommand: node server.js
-    envVars:
-      - key: PORT
-        generateValue: false

@@ -1,11 +1,6 @@
 # 🖥️ Host-Server Interaction System
 
-A dual-mode Node.js chat application that demonstrates real-time network communication. This repository includes two distinct implementations:
-
-1. **Terminal-to-Terminal TCP Sockets**
-2. **Web-to-Browser HTTP & WebSockets**
-
-Both modes process incoming messages and reply with predefined, dynamic responses from the server.
+A Node.js chat application with **three separate modes** — choose the one you want to run!
 
 ---
 
@@ -13,91 +8,114 @@ Both modes process incoming messages and reply with predefined, dynamic response
 
 ```
 host-server-1/
-├── host/
-│   └── host.js       ← Terminal client (connects to the TCP server)
-├── server/
-│   └── server.js     ← TCP socket server (runs on port 3000)
-├── web/
-│   ├── public/
-│   │   └── index.html← Dark-mode Glassmorphism chat page
-│   ├── package.json  ← Web app dependencies (express, ws)
-│   └── server.js     ← Express HTTP & WebSocket server (runs on port 8080)
-└── README.md         ← This documentation file
+│
+├── terminal/               ← Option 1: Terminal-to-Terminal TCP chat
+│   ├── server.js           ← TCP server (run first)
+│   └── client.js           ← Terminal client (run second)
+│
+├── local-web/              ← Option 2: Browser UI on localhost:8070
+│   ├── server.js           ← Express + WebSocket server (self-contained)
+│   ├── package.json
+│   └── public/
+│       └── index.html      ← Green-themed chat UI
+│
+├── render-web/             ← Option 3: Cloud deployment (Render + Vercel)
+│   ├── backend/            ← Deploy on Render
+│   │   ├── server.js       ← WebSocket server with CORS + HTTP health check
+│   │   └── package.json
+│   └── frontend/           ← Deploy on Vercel
+│       └── index.html      ← Purple-themed chat UI (connects to Render)
+│
+├── render.yaml             ← Render deployment config (rootDir: render-web/backend)
+├── vercel.json             ← Vercel deployment config (serves render-web/frontend)
+└── README.md
 ```
 
 ---
 
-## 🎮 Mode 1: Web Browser Interface (Recommended) 🌐
+## 🖥️ Option 1 — Terminal Chat (No npm needed!)
 
-This mode launches an interactive chat website featuring a dark glassmorphism design, auto-scrolling, a simulated server typing animation, and quick-click suggestion chips.
+Pure Node.js, no dependencies. Two terminal windows required.
 
-### Setup Instructions:
+### Terminal 1 — Start the server:
+```bash
+cd terminal
+node server.js
+```
 
-1. **Open a terminal window** in the project directory.
-2. Navigate to the `web` folder:
-   ```bash
-   cd web
-   ```
-3. Install the dependencies (only required once):
-   ```bash
-   npm install
-   ```
-4. Start the web server:
-   ```bash
-   node server.js
-   ```
-5. Open your browser and navigate to:
-   **[http://localhost:8080](http://localhost:8080)**
+### Terminal 2 — Start the client:
+```bash
+cd terminal
+node client.js
+```
+
+Start typing in Terminal 2 and chat with the server!
 
 ---
 
-## 💻 Mode 2: Terminal TCP Sockets 🖥️
+## 🌐 Option 2 — Local Web UI (localhost:8070)
 
-This mode operates entirely in the terminal using Node.js's native `net` library to communicate over a TCP connection.
+A beautiful browser chat UI running entirely on your machine.
 
-### Setup Instructions (requires two terminal windows):
+```bash
+cd local-web
+npm install
+node server.js
+```
 
-#### Step 1: Start the TCP Server (Terminal 1)
-1. Open your first terminal.
-2. Navigate to the `server` directory and start the server code:
-   ```bash
-   cd server
-   node server.js
-   ```
-   *The server will boot and begin listening on `127.0.0.1:3000` for client connections.*
+Open your browser → **http://localhost:8070**
 
-#### Step 2: Start the Host Client (Terminal 2)
-1. Open a second terminal window.
-2. Navigate to the `host` directory and start the client code:
-   ```bash
-   cd host
-   node host.js
-   ```
-3. Begin typing messages in Terminal 2!
+- Green accent theme 🟢
+- WebSocket connects to `ws://localhost:8070`
+- Fully self-contained — no internet needed
 
 ---
 
-## 💬 Predefined Commands & Responses
+## ☁️ Option 3 — Cloud Deployment (Render + Vercel)
 
-The server listens for specific keywords and replies accordingly. If your message contains one of the keywords, the corresponding response triggers.
+Your chat app deployed on the internet!
 
-| Command Keyword | Response Behavior |
-| :--- | :--- |
-| `hello` | Greets you back. |
-| `hi` / `hey` | Casual greetings from the server. |
-| `how are you` | Server reports its current status. |
-| `what is your name` | Server identifies itself. |
-| `what can you do` | Lists available commands. |
-| `time` | Returns the **exact local time** dynamically. |
-| `date` | Returns the **exact local date** dynamically. |
-| `joke` | Tells a developer/programming joke. |
-| `help` | Shows a formatted menu of commands. |
-| `bye` / `exit` | Closes the connection and shuts down the client. |
+| Part | Platform | Folder |
+|------|----------|--------|
+| Backend (WebSocket server) | **Render** | `render-web/backend/` |
+| Frontend (Static HTML) | **Vercel** | `render-web/frontend/` |
+
+### Render settings (Dashboard → Your Service → Settings):
+| Setting | Value |
+|---------|-------|
+| Root Directory | `render-web/backend` |
+| Build Command | `npm install` |
+| Start Command | `node server.js` |
+
+### Vercel:
+Auto-deploys from the repo. The `vercel.json` tells Vercel to serve `render-web/frontend/`.
+
+> ⚠️ **If your Render URL is different**, update line in `render-web/frontend/index.html`:
+> ```js
+> const RENDER_WS_URL = 'wss://YOUR-SERVICE-NAME.onrender.com';
+> ```
 
 ---
 
-## ⚙️ Technical Details
+## 💬 Available Commands (all modes)
 
-* **No Overhead:** The Terminal mode (`server/` and `host/`) runs on Node.js's built-in `net` and `readline` modules without any third-party npm package requirements.
-* **Typing Simulation:** In the Web mode, the server uses a random delay between `600ms` and `1000ms` before responding to mimic a real typing user.
-* **Auto-Reconnect:** The web UI will automatically attempt to reconnect to the WebSocket server if the connection drops.
+| Command | Response |
+|---------|----------|
+| `hello` / `hi` / `hey` | Greeting |
+| `how are you` | Server status |
+| `what is your name` | Server identity |
+| `time` | Current IST time |
+| `date` | Today's date |
+| `joke` | A programmer joke |
+| `thanks` / `thank you` | Politeness |
+| `bye` / `exit` | End conversation |
+| `help` | Full command list |
+
+---
+
+## ⚙️ Technical Notes
+
+- **Option 1** uses Node's built-in `net` module — no npm install needed
+- **Option 2** uses `express` + `ws` — WebSocket and HTTP served together
+- **Option 3** backend uses `ws` only — pure WebSocket + HTTP health check for Render
+- All modes simulate a typing delay (600–1000ms) before replying

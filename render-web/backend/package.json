@@ -1,0 +1,12 @@
+{
+  "name": "host-server-render-backend",
+  "version": "1.0.0",
+  "description": "Cloud WebSocket backend for Host-Server (runs on Render)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}
